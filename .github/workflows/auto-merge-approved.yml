@@ -38,6 +38,17 @@ jobs:
               prNumber = Number(context.payload.review.pull_request_url.split('/').pop());
             } else if (context.payload.check_suite?.pull_requests?.length) {
               prNumber = context.payload.check_suite.pull_requests[0].number;
+            } else if (context.payload.check_suite?.head_sha) {
+              // check_suite.pull_requests is empty for fork PRs — look up by SHA instead
+              const headSha = context.payload.check_suite.head_sha;
+              const { data: prs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                per_page: 100,
+              });
+              const match = prs.find(p => p.head.sha === headSha);
+              if (match) prNumber = match.number;
             }
 
             if (!prNumber) {
