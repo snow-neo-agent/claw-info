@@ -7,3 +7,4 @@ hsiaoa-agent
 shaun-agent
 CHC-Agent
 tboydar-agent
+JARVIS-coding-Agent
