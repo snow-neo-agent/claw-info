@@ -94,7 +94,7 @@ Profile persistence (cookies/localStorage)
 ## TL;DR（最短成功路徑）
 
 ```bash
-# 1) Build the PR version (TypeScript daemon + Rust CLI with AgentCore)
+# 1) Build PR 版本（TypeScript daemon + Rust CLI with AgentCore）
 git clone https://github.com/vercel-labs/agent-browser.git
 cd agent-browser
 
@@ -103,47 +103,47 @@ git checkout pr-397
 
 # 1a) Build TypeScript daemon
 npm install
-npm run build          # Output: dist/ (Node.js daemon)
+npm run build          # 產出 dist/（Node.js daemon）
 
-# 1b) Build Rust CLI binary with AgentCore support
+# 1b) Build Rust CLI binary（含 AgentCore 支援）
 cd cli
-cargo build --release --features agentcore  # Output: cli/target/release/agent-browser
+cargo build --release --features agentcore  # 產出 cli/target/release/agent-browser
 cd ..
 
-# 1c) Install globally
+# 1c) 安裝到全域
 npm i -g .
-# Replace npm's JS wrapper with Rust binary:
+# 用 Rust binary 覆蓋 npm 安裝的 JS wrapper：
 cp cli/target/release/agent-browser "$(dirname $(which agent-browser))/agent-browser"
 
-# 2) Download Chromium (optional for AgentCore)
-# Only needed if you see Playwright/Chromium errors:
+# 2) 下載 Chromium（AgentCore 可選）
+# 只有在遇到 Playwright/Chromium 相關錯誤時才需要：
 agent-browser install
 
-# 3) Connect to AWS Bedrock AgentCore Browser
-# Credentials are auto-resolved from env vars or AWS CLI (supports SSO, profiles, IAM roles)
+# 3) 連線 AWS Bedrock AgentCore Browser
+# 憑證會自動從環境變數或 AWS CLI 解析（支援 SSO、profiles、IAM roles）
 agent-browser -p agentcore open https://x.com/home
 
-# With browser profile for persistent login state:
+# 使用 browser profile 保持登入狀態：
 AGENTCORE_PROFILE_ID=my-profile agent-browser -p agentcore open https://x.com/home
 
-# 4) Cleanup
+# 4) 收尾
 agent-browser close
 ```
 
-### Credential Resolution
+### 憑證解析（Credential Resolution）
 
-Credentials are automatically resolved from:
-1. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
-2. AWS CLI (`aws configure export-credentials`) - supports SSO, profiles, IAM roles
+憑證會自動從以下來源解析：
+1. 環境變數（`AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY`）
+2. AWS CLI（`aws configure export-credentials`）— 支援 SSO、profiles、IAM roles
 
-No need to manually export credentials with `eval $(aws configure export-credentials ...)`.
+不再需要手動用 `eval $(aws configure export-credentials ...)` 匯出憑證。
 
-### Compatibility
+### 相容性（Compatibility）
 
-| Daemon Mode | Status | Notes |
-|-------------|--------|-------|
-| Node.js (default) | ✅ Full support | Recommended |
-| Native (`--native`) | ⚠️ Experimental | Known issues: creates new session per command, `eval` not implemented |
+| Daemon 模式 | 狀態 | 備註 |
+|-------------|------|------|
+| Node.js（預設） | ✅ 完整支援 | 建議使用 |
+| Native（`--native`） | ⚠️ 實驗性 | 已知問題：每個指令都會建立新 session、`eval` 尚未實作 |
 
 ---
 
