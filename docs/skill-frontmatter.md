@@ -50,6 +50,12 @@ OpenClaw 讀取每個 `SKILL.md` 的 frontmatter，將 skill 註冊為 Telegram/
 
 ## 範例：`run` skill（直接執行任意 shell 指令）
 
+> ⚠️ **安全警告**：`run` skill 允許任何有權限的用戶執行任意 shell 指令，風險極高。
+> 建議僅在以下條件下啟用：
+> - gateway 設有嚴格的 `allowFrom` 白名單（僅限信任用戶）
+> - 或搭配 `exec` 的 `security: allowlist` 模式限制可執行指令
+> - 切勿在多用戶或公開 bot 環境中使用
+
 ```yaml
 ---
 name: run
