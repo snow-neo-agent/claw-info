@@ -103,15 +103,25 @@ agent / 自動化腳本
 
 ### 在 cron payload 中使用
 
-```bash
-# cron isolated session 的執行腳本片段
-# 分析完成後，準備寫入 memory——先審批
+isolated session 不繼承 `AGENTS.md`，必須在 payload 裡顯式說明邊界，再搭配 openfeedback 作為執行閘門：
 
-openfeedback "Agent 準備更新 memory/2026-03-10.md
+```
+# cron payload 範例（財務分析 agent）
+你是一個財務分析 agent。
+
+可自主執行：
+- 讀取 workspace 內的 market-data/ 檔案
+- 分析數據、生成摘要
+
+需要審批（使用 openfeedback）：
+- 寫入任何檔案
+- 發送任何外部訊息
+
+完成分析後，執行以下指令請示是否寫入 memory：
+openfeedback "Agent 準備更新 memory/today.md
 內容：今日市場分析摘要（約 500 字）
 影響：覆蓋既有當日記錄
-是否核准？" && \
-  write_memory_file
+是否核准？" && echo "${SUMMARY}" >> memory/today.md
 ```
 
 ### 在 coding agent 流程中使用
@@ -152,26 +162,6 @@ default_timeout = 60                   # 超時視為拒絕（安全預設）
 ```
 
 詳細安裝請見 [openfeedback README](https://github.com/antx-code/openfeedback)。
-
----
-
-## 在 cron payload 中表達 approval-first
-
-isolated session 不繼承 `AGENTS.md`，必須在 payload 裡顯式說明邊界：
-
-```
-你是一個財務分析 agent。
-
-可自主執行：
-- 讀取 workspace 內的 market-data/ 檔案
-- 分析數據、生成摘要
-
-需要審批（使用 openfeedback）：
-- 寫入任何檔案
-- 發送任何外部訊息
-
-完成分析後，用 openfeedback 請示是否將摘要寫入 memory/today.md。
-```
 
 ---
 
@@ -222,5 +212,4 @@ isolated session 不讀 AGENTS.md。邊界 policy 必須在 payload 裡重複說
 
 - `docs/cron.md`：OpenClaw Cron 系統
 - `usecases/cron-automated-workflows.md`：自動化工作流設計
-- `usecases/context-overflow-prevention.md`：agent session 防護
 - Issue #297：本文件的提案來源
