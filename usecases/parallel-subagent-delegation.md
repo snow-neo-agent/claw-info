@@ -12,7 +12,7 @@
 
 ## 實際跑通紀錄
 
-**環境：** OpenClaw v2026.2.25，icern (Linux VPS)  
+**環境：** OpenClaw v2026.2.25，Linux VPS  
 **任務：** 找出 claw-info 的 usecase 貢獻空缺
 
 主 Agent 同時 spawn 兩個子 Agent：
