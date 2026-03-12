@@ -1,4 +1,68 @@
-# Telegram 討論串（Topic）綁定 ACP 代理
+# Telegram Binding 指南
+
+openclaw 的 `bindings` 設定支援兩種 Telegram 綁定模式：
+
+| 模式 | 說明 | `match` 欄位 |
+|---|---|---|
+| **DM Binding** | 將特定 bot 帳號的私訊（DM）路由到指定 agent | 僅含 `channel` + `accountId`，無 `peer` |
+| **Thread/Topic Binding** | 將群組中特定 Topic 的訊息路由到指定 agent | 含 `peer.kind: "group"` + `peer.id: "<groupId>:topic:<threadId>"` |
+
+---
+
+## DM Binding
+
+DM Binding 將某個 Telegram bot 帳號收到的所有私訊，路由到指定的 agent。
+
+### 設定範例
+
+```json
+{
+  "bindings": [
+    {
+      "agentId": "main",
+      "match": {
+        "channel": "telegram",
+        "accountId": "kong-ming"
+      }
+    }
+  ]
+}
+```
+
+- `accountId`：對應的 Telegram bot 帳號 ID（在 `channels.telegram.accounts` 中定義）
+- 無 `peer` 欄位：匹配該帳號下所有私訊
+- 路由優先順序：`binding.peer` > `binding.account`，即若同一帳號同時有 DM binding 與 Topic binding，Topic binding 優先
+
+> **注意：binding 與 agent runtime 是正交的。**
+> `bindings` 決定「哪些訊息路由給哪個 `agentId`」，而該 agent 是本地 LLM 還是外部 ACP，取決於 `agents[].runtime.type`。
+> DM Binding 同樣可以路由到 `type: "acp"` 的 agent，並非只有 Topic Binding 才能接 ACP。
+>
+> ```
+> binding (match 條件)  ──▶  agentId  ──▶  runtime.type
+>                                          ├─ local  → 本地 LLM
+>                                          └─ acp    → 外部 ACP agent (Codex / Kiro / Gemini)
+> ```
+
+### 什麼時候不需要 DM Binding？
+
+若只有一個 agent 對應一個 Telegram 帳號，**binding 可以省略**。OpenClaw 路由找不到匹配的 binding 時，會自動 fallback 到 `defaultAgent`：
+
+```
+無 binding 命中 ──▶ resolveDefaultAgentId(cfg) ──▶ 預設 agent 處理
+```
+
+需要明確設定 binding 的情況：
+
+| 情境 | 需要 binding？ |
+|---|---|
+| 單一帳號、單一 agent，純路由 | ❌ default fallback 即可 |
+| 多個 TG 帳號各自對應不同 agent | ✅ |
+| 同帳號下不同 topic 路由不同 agent | ✅ |
+| 需指定 ACP `cwd` / `mode` 等參數 | ✅（`type: "acp"` binding 才能攜帶這些） |
+
+---
+
+## Thread/Topic Binding
 
 ## 什麼是 Thread/Topic ACP Binding？
 
